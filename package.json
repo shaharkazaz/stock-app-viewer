@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "description": "Stocks App Viewer",
   "author": "Shahar Kazaz",
+  "license": "Apache",
   "repository": "https://github.com/shaharkazaz/stock-app-viewer",
   "dependencies": {
     "http-server": "0.8.5"
