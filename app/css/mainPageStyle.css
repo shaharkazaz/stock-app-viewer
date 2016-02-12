@@ -1,0 +1,21 @@
+h1 {
+	margin: 10px;
+}
+#tableContainer{
+	display: inline-block;
+	height: 450px;
+	width: 47%;
+	overflow-y: auto; 
+}
+#saparator{
+	display: inline-block;
+	height: 450px;
+	width: 4px;
+	background-color: black;
+}
+#graphContainer{
+	display: inline-block;
+	height: 450px;
+	width: 47%;
+	overflow-x: auto; 
+}

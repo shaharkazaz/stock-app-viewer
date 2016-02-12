@@ -1,0 +1,9 @@
+{
+  "name": "datorama",
+  "private": true,
+  "dependencies": {
+    "jquery": "2.2.0",
+    "bootstrap": "3.3.6",
+    "highcharts": "4.2.3"
+  }
+}

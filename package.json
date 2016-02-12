@@ -1,0 +1,17 @@
+{
+  "name": "datorama",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Stocks App Viewer",
+  "author": "Shahar Kazaz",
+  "repository": "https://github.com/shaharkazaz/stock-app-viewer",
+  "dependencies": {
+    "http-server": "0.8.5"
+  },
+  "devDependencies": {
+    "bower": "1.7.7"
+  },
+  "engines": {
+    "node": "4.3.0"
+  }
+}
