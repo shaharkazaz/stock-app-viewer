@@ -368,7 +368,7 @@ function addToTable(){
 	}
 }
 
-// FIXME - Enter is not working
+// FIXME - Enter is not working - try to make it work without the use of form HTML tag
 // TODO - QA according to the demands
 // TODO - QA on Chrome
 // TODO - QA on Safari
