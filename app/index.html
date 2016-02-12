@@ -24,22 +24,23 @@
 				   <div class="input-group">
 				      <input id="searchInput" type="text" class="form-control" placeholder="Search by stock symbol..." autofocus="autofocus" />
 				      <span class="input-group-btn">
-				        <button class="btn btn-default" type="button" onclick="search()" data-toggle="tooltip" title="Search">
+				        <button class="btn btn-default" type="button" onclick="search(false)" data-toggle="tooltip" title="Search">
                   <img class="search-images" src="Images/search.png">
                 </button>
 			          <button class="btn btn-default" type="button" onclick="clearSearch()" data-toggle="tooltip" title="Clear the search">
                   Clear search
                 </button>
-			          <button class="btn btn-default" type="button" onclick="" data-toggle="tooltip" title="Add a new search to the old one">
+			          <button class="btn btn-default" type="button" onclick="addToTable()" data-toggle="tooltip" title="Add a new search to the old one">
                   Add to table
                 </button>
 				      </span>
 				    </div>
 				</div>
 				<h5 id="loader" class="form-control-static">
-          Searching
-          <img src="Images/loading.gif">
-        </h5>
+		          Searching
+		          <img src="Images/loading.gif">
+        		</h5>
+        		<span id="msgDisplayer" class="alert alert-danger"></span>
 			</form>
 		</left>
 		<br>

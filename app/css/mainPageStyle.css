@@ -39,3 +39,6 @@ h1 {
 #loader img {
 	height: 18px;
 }
+#msgDisplayer{
+	display: none;
+}

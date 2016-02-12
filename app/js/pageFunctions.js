@@ -3,17 +3,19 @@ $(document).ready(function(){
 	//insted, the search function will run
 	$("#searchForm").submit(function(e){
 		e.preventDefault();
-		search();
+		search(false);
 	});
 	$('[data-toggle="tooltip"]').tooltip();
 });
 //clears all the data that was searched
 function clearSearch(){
+	$("#msgDisplayer").hide();
 	$("#tableContent").html("Enter a new search");
 	$("#GraphContent").html("Enter a new search");
 }
 //search fnuction is incharge of getting the stocks info from Yahoo
-function search(){
+function search(addRows){
+	$("#msgDisplayer").hide();
 	var searchInputData = [];
 	searchInputData = setInputForSQLretrieval($("#searchInput").val());
 	var yahooURL = createURL(searchInputData);
@@ -28,49 +30,65 @@ function search(){
 			dataType: "json",
 			success: function(ajaxResult){
 				$("#searchForm h5").hide();
+				$("#searchInput").val("");
 				var queryCount= ajaxResult.query.count;
 				var stockResult = ajaxResult.query.results.quote;
 				if(queryCount === 1){
 					if(stockResult.Name == null){
-						$("#tableContent").html("No stock was found in the given \
-							symbol ("+stockResult.symbol+")");
-						$("#GraphContent").html("No stock was found in the given \
-							symbol ("+stockResult.symbol+")");
+						var noResult = "No stock was found in the given symbol ("+stockResult.symbol+")";
+						$("#tableContent").html(noResult);
+						$("#GraphContent").html(noResult);
 					}// if
 					else{
-						var table = tableHeaders();
-						addTableRows(stockResult,table,queryCount);
-						createChart(stockResult,queryCount);
+						if (!addRows) {
+							var table = tableHeaders();
+							addTableRows(stockResult,table,queryCount);
+							createChart(stockResult,queryCount);
+						}
+						else{
+							appendRows(stockResult,queryCount);
+						}
 					}//else
 				}//if ajaxResult.query.count == 1
 				else{
 					if (checkNotallNull(stockResult,queryCount)) {
-						var table = tableHeaders();
+						if (!addRows) {
+							var table = tableHeaders();
 							addTableRows(stockResult,table,queryCount);
 							createChart(stockResult,queryCount);
+						}
+						else{
+							appendRows(stockResult,queryCount);
+						}
 					}
 					else{
-						alert("shitshith");
+						var noResult = "No stock was found in the given symbol (";
+						for (var i = 0; i < searchInputData.length-1; i++) {
+							noResult += stockResult.symbol + ",";
+						}
+						noResult += stockResult[stockResult.length-1] + ")";
+						$("#tableContent").html(noResult);
+						$("#GraphContent").html(noResult);
 					}
 				}//else
 			},//success
 			error: function(request, status, error){
 				$("#searchForm h5").hide();
-				var defaultError = "Some thing went wrong..";
+				var defaultError = "<strong>Error -</strong>Some thing went wrong..";
 				var message;
 				if (error) {
 					message = error.message || defaultError;
 				} else {
 					message = defaultError;
 				}
-
-				alert(message);
+				$("#msgDisplayer").html(message);
+				$("#msgDisplayer").css('display', 'inline-block');
 			}//error
 		});
 	}//else
 }
 function tableHeaders(){
-	return "<table class='table table-striped'><tr><th>Symbol</th><th>Name</th><th>Previous close</th>\
+	return "<table id='stockTable' class='table table-striped'><tr><th>Symbol</th><th>Name</th><th>Previous close</th>\
 	<th>Year low</th><th>Year high</th><th>Change from year low</th><th>Change from year high</th></tr>";
 }
 function addTableRows(stockData,tableStr,queryCount){
@@ -122,10 +140,10 @@ function addTableRows(stockData,tableStr,queryCount){
 		}//for
 		tableStr += "</table>";
 		if (notfoundArr.length > 0) {
-			for (x in notfoundArr){
-				notfoundStr += notfoundArr[x];
+			for (var i = 0;i < notfoundArr.length-1 ; i++){
+				notfoundStr += notfoundArr[x] + ",";
 			}
-			notfoundStr += ")</div>";
+			notfoundStr += notfoundArr[notfoundArr.length-1] + ")</div>";
 			tableStr += notfoundStr;
 		}
 	}//else
@@ -193,4 +211,84 @@ function createURL(stockArry){
 	yahooURL += "%22)%0A%09%09&format=json&diagnostics=true&env=http%3A%2F%2Fdatatables.org%2Falltables.\
 	env&callback=";
 	return yahooURL;
+}
+function addToTable(){
+	$("#msgDisplayer").hide();
+	if (document.getElementById("stockTable")){
+		var tempObj = {};
+		var tempStr = "";
+		var tableRows = document.getElementById("stockTable").rows;
+		for (var z = 1; z < tableRows.length; z++) {
+			tempObj[tableRows[z].cells[0].innerText] = true;
+		}
+		var searchInputData = setInputForSQLretrieval($("#searchInput").val());
+		for (var i = 0; i < searchInputData.length; i++) {
+			if (!tempObj[searchInputData[i]]) {
+				tempStr += searchInputData[i] + ",";
+			}
+		}
+		$("#searchInput").val(tempStr.slice(0,tempStr.length-1));
+		search(true);
+	} else {
+		$("#msgDisplayer").html("There isnt a table to add to");
+		$("#msgDisplayer").css('display', 'inline-block');
+	}
+}
+function appendRows(stockData,queryCount){
+		var tableStr = "";
+		if (queryCount === 1) {
+		tableStr += "<tr><td>"+stockData.symbol+"</td><td>"+stockData.Name+"</td>\
+		<td>"+stockData.PreviousClose+"$</td><td>"+stockData.YearLow+"$</td><td>\
+		"+stockData.YearHigh+"$</td><td";
+		if (stockData.ChangeFromYearLow > 0) {
+			tableStr += " style='color:green'";
+		}
+		else if(stockData.ChangeFromYearLow < 0){
+			tableStr += " style='color:red'";
+		}
+		tableStr += ">"+stockData.ChangeFromYearLow+"$</td><td";
+		if (stockData.ChangeFromYearHigh > 0) {
+			tableStr += " style='color:green'";
+		}
+		else if(stockData.ChangeFromYearHigh < 0){
+			tableStr += " style='color:red'";
+		}
+		tableStr += ">"+stockData.ChangeFromYearHigh+"$</td></tr></table>";
+	}//if
+	else{
+		var notfoundStr = "<br><div>No stock was found in the given symbol (";
+		var notfoundArr = [];
+		for (var i = 0; i < queryCount; i++) {
+			if (stockData[i].Name == null) {
+				notfoundArr.push(stockData[i].symbol);
+			}//if
+			else{
+				tableStr += "<tr><td>"+stockData[i].symbol+"</td><td>"+stockData[i].Name+"</td>\
+				<td>"+stockData[i].PreviousClose+"$</td><td>"+stockData[i].YearLow+"$</td><td>\
+				"+stockData[i].YearHigh+"$</td><td";
+				if (stockData[i].ChangeFromYearLow > 0) {
+					tableStr += " style='color:green'";
+				}//if
+				else if(stockData.ChangeFromYearLow < 0){
+					tableStr += " style='color:red'";
+				}//elseif
+				tableStr += ">"+stockData[i].ChangeFromYearLow+"$</td><td";
+				if (stockData[i].ChangeFromYearHigh > 0) {
+					tableStr += " style='color:green'";
+				}//if
+				else if(stockData[i].ChangeFromYearHigh < 0){
+					tableStr += " style='color:red'";
+				}//elseif
+				tableStr += ">"+stockData[i].ChangeFromYearHigh+"$</td></tr>";
+			}//else
+		}//for
+		// if (notfoundArr.length > 0) {
+		// 	for (var i = 0;i < notfoundArr.length-1 ; i++){
+		// 		notfoundStr += notfoundArr[x] + ",";
+		// 	}
+		// 	notfoundStr += notfoundArr[notfoundArr.length-1] + ")</div>";
+		// 	tableStr += notfoundStr;
+		// }
+		$("#stockTable").append(tableStr);
+	}//else
 }
