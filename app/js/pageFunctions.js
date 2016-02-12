@@ -38,8 +38,9 @@ function showErrorMessage(message) {
 }
 
 /**
- * TODO - fill in what it does!
- * @param {[type]} inputVal [description]
+ * Upper case and splitt non empty words
+ * @param {string} inputVal - the inputVal
+ * @return the array of words
  */
 function setInputForSQLretrieval(inputVal){
 	var temp = inputVal.replace(/\ /g, "");
@@ -84,8 +85,7 @@ function createTableHeaders(){
  * @function
  */
 function createChart(stockData, appendStocks){
-	// TODO: Change it back to 6 after all the QA is done
-	var MAX_ALLOWED_STOCKS = 2;
+	var MAX_ALLOWED_STOCKS = 6;
 	var fromLowP;
 	var fromHighP;
 	var columnChart;
@@ -272,7 +272,6 @@ function search(addRows){
 		var english = /^[A-Za-z0-9\,\ ]*$/;
 
 		// Checks if the text is not in English
-		// FIXME: It also excepts # @ and so on..
 		if(!english.test(searchInputData)){
 			showErrorMessage("This input accepts only English, spaces and commas");
 		} else{
@@ -362,17 +361,5 @@ function addToTable(){
 		search(true);
 	} else {
 		search(false);
-
-		// TODO - should I want just to perform a regular search instead of showing an error???
-		// showErrorMessage("There isn't a table to add to");
 	}
 }
-
-// FIXME - Enter is not working - try to make it work without the use of form HTML tag
-// TODO - QA according to the demands
-// TODO - QA on Chrome
-// TODO - QA on Safari
-// TODO - QA on FF
-// TODO - QA on IE11
-// TODO - QA on Edge
-// TODO - Explain extra stuff in the README.md file
