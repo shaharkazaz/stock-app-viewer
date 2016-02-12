@@ -3,6 +3,11 @@
  */
 
 /**
+ * @type {Highcharts.Chart} The chart we renders the data to
+ */
+var chart;
+
+/**
  * Hiding the alert message
  * @function
  */
@@ -78,54 +83,79 @@ function createTableHeaders(){
  * @return {Highcharts.Chart} - the new chart to display
  * @function
  */
-function createChart(stockData){
-	var MAX_ALLOWED_STOCKS = 6;
+function createChart(stockData, appendStocks){
+	// TODO: Change it back to 6 after all the QA is done
+	var MAX_ALLOWED_STOCKS = 2;
 	var fromLowP;
 	var fromHighP;
-	var columnChart = {};
-	columnChart.chart = {
-		renderTo:'GraphContent',
-		type:'column'
-	};
-	columnChart.title = {
-		text: "Difference in Percentage of YearLow and YearHigh"
-	};
-	columnChart.xAxis = {
-		categories: [
-			'YearHighDiff',
-			'YearLowDiff'
-		]
-	};
-	columnChart.yAxis = {
-		title: {
-			text: "Percentage (%)"
-		}
-	};
-	columnChart.series = [];
+	var columnChart;
 
-	var chartCounter = 0;
-
-	// Goes over all the stocks to create data for the graph
-	for (var stockIndex = 0; stockIndex < stockData.length; stockIndex++) {
-		var currentStock = stockData[stockIndex];
-
-		// In some cases (like Apple for example) we do not have all the data to show in the graph
-		if (currentStock.YearLow != null){
-			columnChart.series[chartCounter] = {};
-			columnChart.series[chartCounter].name = currentStock.Name;
-			fromLowP = (currentStock.ChangeFromYearLow) * 100 / currentStock.YearLow;
-			fromHighP = (currentStock.ChangeFromYearHigh) * 100 / currentStock.YearHigh;
-			columnChart.series[chartCounter].data = [fromHighP, fromLowP];
-			chartCounter++;
-
-			// We only allowed some ammout of stocks to be shown in the graph
-			if (columnChart.series.length === MAX_ALLOWED_STOCKS){
-				break;
+	// Only set the columnChart if we are creating a new chart
+	if (!appendStocks) {
+		columnChart = {};
+		columnChart.chart = {
+			renderTo:'GraphContent',
+			type:'column'
+		};
+		columnChart.title = {
+			text: "Difference in Percentage of YearLow and YearHigh"
+		};
+		columnChart.xAxis = {
+			categories: [
+				'YearHighDiff',
+				'YearLowDiff'
+			]
+		};
+		columnChart.yAxis = {
+			title: {
+				text: "Percentage (%)"
 			}
-		}
+		};
 	}
 
-	return new Highcharts.Chart(columnChart);
+	var series = [];
+	var chartCurrentLength;
+	var chartCounter = 0;
+
+	// If we're creating a new chart than the current length of stocks in it is zero
+	if (!appendStocks || !chart || !chart.series) {
+		chartCurrentLength = 0;
+	} else {
+		chartCurrentLength = chart.series.length;
+	}
+
+	// Perform any action only if the current amount of series doesn't pass the allowed max
+	if (chartCurrentLength < MAX_ALLOWED_STOCKS) {
+		// Goes over all the stocks to create data for the graph
+		for (var stockIndex = 0; stockIndex < stockData.length; stockIndex++) {
+			var currentStock = stockData[stockIndex];
+
+			// In some cases (like Apple for example) we do not have all the data to show in the graph
+			if (currentStock.YearLow != null){
+				series[chartCounter] = {};
+				series[chartCounter].name = currentStock.Name;
+				fromLowP = (currentStock.ChangeFromYearLow) * 100 / currentStock.YearLow;
+				fromHighP = (currentStock.ChangeFromYearHigh) * 100 / currentStock.YearHigh;
+				series[chartCounter].data = [fromHighP, fromLowP];
+				chartCounter++;
+
+				// We only allowed some ammout of stocks to be shown in the graph
+				if (chartCurrentLength + series.length === MAX_ALLOWED_STOCKS){
+					break;
+				}
+			}
+		}
+
+		if (appendStocks) {
+			$.each(series, function (itemNo, item) {
+        chart.addSeries(item, false);
+  		});
+      chart.redraw();
+		} else {
+			columnChart.series = series;
+			chart = new Highcharts.Chart(columnChart);
+		}
+	}
 }
 
 /**
@@ -233,7 +263,6 @@ function search(addRows){
 	hideMsg();
 	var userInput = $("#searchInput").val();
 
-	// FIXME - Fix - if there is no text, the search button should be disabled
 	// If there is no text - do not search. We do it even that we've set the search button to disabled when
 	// there is no text - in order to be 100% bullet proff for future changes in the HTML
 	if (userInput) {
@@ -243,7 +272,7 @@ function search(addRows){
 		var english = /^[A-Za-z0-9\,\ ]*$/;
 
 		// Checks if the text is not in English
-		// FIXME: It also excepts # and so on..
+		// FIXME: It also excepts # @ and so on..
 		if(!english.test(searchInputData)){
 			showErrorMessage("This input accepts only English, spaces and commas");
 		} else{
@@ -281,8 +310,7 @@ function search(addRows){
 						appendRows(stockResult);
 					}
 
-					// FIXME - when addToTable it changes the graph to only show the lateset stock
-					createChart(stockResult);
+					createChart(stockResult, addRows);
 				},
 				error: function(request, status, error){
 					$("#searchDiv h5").hide();
@@ -339,3 +367,12 @@ function addToTable(){
 		// showErrorMessage("There isn't a table to add to");
 	}
 }
+
+// FIXME - Enter is not working
+// TODO - QA according to the demands
+// TODO - QA on Chrome
+// TODO - QA on Safari
+// TODO - QA on FF
+// TODO - QA on IE11
+// TODO - QA on Edge
+// TODO - Explain extra stuff in the README.md file
