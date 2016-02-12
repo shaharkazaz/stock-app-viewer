@@ -54,9 +54,17 @@ function search(){
 					}
 				}//else
 			},//success
-			error: function(e){
+			error: function(request, status, error){
 				$("#searchForm h5").hide();
-				alert(e);
+				var defaultError = "Some thing went wrong..";
+				var message;
+				if (error) {
+					message = error.message || defaultError;
+				} else {
+					message = defaultError;
+				}
+
+				alert(message);
 			}//error
 		});
 	}//else
