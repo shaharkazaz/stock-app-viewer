@@ -20,7 +20,7 @@ h1 {
 	overflow-x: auto;
 }
 
-#searchForm {
+#searchDiv {
 	margin-left: 40px;
 }
 
@@ -39,6 +39,8 @@ h1 {
 #loader img {
 	height: 18px;
 }
-#msgDisplayer{
+
+#msgContainer{
 	display: none;
+	margin-bottom: 0px !important;
 }

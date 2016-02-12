@@ -18,7 +18,7 @@
   <body>
     <left>
 			<h1>Stock App Viewer</h1>
-			<form id="searchForm" class="form-inline">
+			<div id="searchDiv" class="form-inline">
 				<h3 class="form-control-static">Stocks</h3>
 				<div class="form-group">
 				   <div class="input-group">
@@ -37,11 +37,16 @@
 				    </div>
 				</div>
 				<h5 id="loader" class="form-control-static">
-		          Searching
-		          <img src="Images/loading.gif">
-        		</h5>
-        		<span id="msgDisplayer" class="alert alert-danger"></span>
-			</form>
+	          Searching
+	          <img src="Images/loading.gif">
+    		</h5>
+        <!-- FIXME - Fix when alert shows it pushed everything down -->
+        <div id="msgContainer" class="alert alert-danger fade in">
+          <!-- FIXME - Fix the X button in the alert  it should be aligned in the center -->
+          <button id="msgHideButton" onclick="hideMsg()" type="button" class="close alert-close">&times;</button>
+          <span id="msgDisplayer">
+        </div>
+			</div>
 		</left>
 		<br>
 		<center>

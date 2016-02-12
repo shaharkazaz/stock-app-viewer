@@ -1,294 +1,334 @@
-$(document).ready(function(){
-	//when the search form is submitted' the event wont be trigered
-	//insted, the search function will run
-	$("#searchForm").submit(function(e){
-		e.preventDefault();
-		search(false);
-	});
-	$('[data-toggle="tooltip"]').tooltip();
-});
-//clears all the data that was searched
+/**
+@fileoverview The js function for the stocks viewer
+ */
+
+/**
+ * Hiding the alert message
+ * @function
+ */
+function hideMsg() {
+	$("#msgContainer").hide();
+}
+
+/**
+ * Clears all the data that was searched
+ * @return
+ */
 function clearSearch(){
-	$("#msgDisplayer").hide();
+	hideMsg();
 	$("#tableContent").html("Enter a new search");
 	$("#GraphContent").html("Enter a new search");
 }
-//search fnuction is incharge of getting the stocks info from Yahoo
-function search(addRows){
-	$("#msgDisplayer").hide();
-	var searchInputData = [];
-	searchInputData = setInputForSQLretrieval($("#searchInput").val());
-	var yahooURL = createURL(searchInputData);
-	var english = /^[A-Za-z0-9\,\ ]*$/;
-	if(!english.test(searchInputData)){
-		alert("This input accepts only English,spaces and commas");
+
+/**
+ * Shows and alert message for the user if a message is provided
+ * @param  {string} message - the message to display to the user
+ * @function
+ */
+function showErrorMessage(message) {
+	if (message) {
+		$("#msgDisplayer").html(message);
+		$("#msgContainer").css('display', 'inline-block');
 	}
-	else{
-		$("#searchForm h5").css('display', 'inline-block');
-		$.ajax({
-			url: yahooURL,
-			dataType: "json",
-			success: function(ajaxResult){
-				$("#searchForm h5").hide();
-				$("#searchInput").val("");
-				var queryCount= ajaxResult.query.count;
-				var stockResult = ajaxResult.query.results.quote;
-				if(queryCount === 1){
-					if(stockResult.Name == null){
-						var noResult = "No stock was found in the given symbol ("+stockResult.symbol+")";
-						$("#tableContent").html(noResult);
-						$("#GraphContent").html(noResult);
-					}// if
-					else{
-						if (!addRows) {
-							var table = tableHeaders();
-							addTableRows(stockResult,table,queryCount);
-							createChart(stockResult,queryCount);
-						}
-						else{
-							appendRows(stockResult,queryCount);
-						}
-					}//else
-				}//if ajaxResult.query.count == 1
-				else{
-					if (checkNotallNull(stockResult,queryCount)) {
-						if (!addRows) {
-							var table = tableHeaders();
-							addTableRows(stockResult,table,queryCount);
-							createChart(stockResult,queryCount);
-						}
-						else{
-							appendRows(stockResult,queryCount);
-						}
-					}
-					else{
-						var noResult = "No stock was found in the given symbol (";
-						for (var i = 0; i < searchInputData.length-1; i++) {
-							noResult += stockResult.symbol + ",";
-						}
-						noResult += stockResult[stockResult.length-1] + ")";
-						$("#tableContent").html(noResult);
-						$("#GraphContent").html(noResult);
-					}
-				}//else
-			},//success
-			error: function(request, status, error){
-				$("#searchForm h5").hide();
-				var defaultError = "<strong>Error -</strong>Some thing went wrong..";
-				var message;
-				if (error) {
-					message = error.message || defaultError;
-				} else {
-					message = defaultError;
-				}
-				$("#msgDisplayer").html(message);
-				$("#msgDisplayer").css('display', 'inline-block');
-			}//error
-		});
-	}//else
 }
-function tableHeaders(){
-	return "<table id='stockTable' class='table table-striped'><tr><th>Symbol</th><th>Name</th><th>Previous close</th>\
-	<th>Year low</th><th>Year high</th><th>Change from year low</th><th>Change from year high</th></tr>";
-}
-function addTableRows(stockData,tableStr,queryCount){
-	if (queryCount === 1) {
-		tableStr += "<tr><td>"+stockData.symbol+"</td><td>"+stockData.Name+"</td>\
-		<td>"+stockData.PreviousClose+"$</td><td>"+stockData.YearLow+"$</td><td>\
-		"+stockData.YearHigh+"$</td><td";
-		if (stockData.ChangeFromYearLow > 0) {
-			tableStr += " style='color:green'";
-		}
-		else if(stockData.ChangeFromYearLow < 0){
-			tableStr += " style='color:red'";
-		}
-		tableStr += ">"+stockData.ChangeFromYearLow+"$</td><td";
-		if (stockData.ChangeFromYearHigh > 0) {
-			tableStr += " style='color:green'";
-		}
-		else if(stockData.ChangeFromYearHigh < 0){
-			tableStr += " style='color:red'";
-		}
-		tableStr += ">"+stockData.ChangeFromYearHigh+"$</td></tr></table>";
-	}//if
-	else{
-		var notfoundStr = "<br><div>No stock was found in the given symbol (";
-		var notfoundArr = [];
-		for (var i = 0; i < queryCount; i++) {
-			if (stockData[i].Name == null) {
-				notfoundArr.push(stockData[i].symbol);
-			}//if
-			else{
-				tableStr += "<tr><td>"+stockData[i].symbol+"</td><td>"+stockData[i].Name+"</td>\
-				<td>"+stockData[i].PreviousClose+"$</td><td>"+stockData[i].YearLow+"$</td><td>\
-				"+stockData[i].YearHigh+"$</td><td";
-				if (stockData[i].ChangeFromYearLow > 0) {
-					tableStr += " style='color:green'";
-				}//if
-				else if(stockData.ChangeFromYearLow < 0){
-					tableStr += " style='color:red'";
-				}//elseif
-				tableStr += ">"+stockData[i].ChangeFromYearLow+"$</td><td";
-				if (stockData[i].ChangeFromYearHigh > 0) {
-					tableStr += " style='color:green'";
-				}//if
-				else if(stockData[i].ChangeFromYearHigh < 0){
-					tableStr += " style='color:red'";
-				}//elseif
-				tableStr += ">"+stockData[i].ChangeFromYearHigh+"$</td></tr>";
-			}//else
-		}//for
-		tableStr += "</table>";
-		if (notfoundArr.length > 0) {
-			for (var i = 0;i < notfoundArr.length-1 ; i++){
-				notfoundStr += notfoundArr[x] + ",";
-			}
-			notfoundStr += notfoundArr[notfoundArr.length-1] + ")</div>";
-			tableStr += notfoundStr;
-		}
-	}//else
-	$("#tableContent").html(tableStr);
-}
-function createChart(stockData,queryCount){
-	var fromLowP;var fromHighP;var columnChart = {};
-	columnChart.chart = {renderTo:'GraphContent',type:'column'};
-	columnChart.title = {text:"Difference in Percentage of YearLow and YearHigh"};
-	columnChart.xAxis = {categories: ['YearHighDiff', 'YearLowDiff']};
-	columnChart.yAxis = {title:{text:"Percentage (%)"}};
-	columnChart.series = [];
-	if(queryCount === 1){
-		if (stockData.YearLow == null){
-			$("#GraphContent").html("No Values To display");
-		}
-		else{
-			columnChart.series[0] = {};
-			columnChart.series[0].name = stockData.Name;
-			fromLowP = (stockData.ChangeFromYearLow)*100/stockData.YearLow;
-			fromHighP = (stockData.ChangeFromYearHigh)*100/stockData.YearHigh;
-			columnChart.series[0].data = [fromHighP,fromLowP];
-		}
-	}
-	else
-	{
-		var chartCounter = 0;
-			for (var i = 0;i < queryCount; i++) {
-				if (stockData[i].YearLow != null){
-					columnChart.series[chartCounter] = {};
-					columnChart.series[chartCounter].name = stockData[i].Name;
-					fromLowP = (stockData[i].ChangeFromYearLow)*100/stockData[i].YearLow;
-					fromHighP = (stockData[i].ChangeFromYearHigh)*100/stockData[i].YearHigh;
-					columnChart.series[chartCounter].data = [fromHighP,fromLowP];
-					chartCounter++;
-					if (columnChart.series.length == 6 ){
-						break;
-					}
-				}//if
-			}//for
-	}//else
-	return chart1 = new Highcharts.Chart(columnChart);
-}
-function checkNotallNull(stockData,queryCount){
-	for (var i = 0; i < queryCount; i++) {
-		if (stockData[i].Name != null) {
-			return true;
-		}
-	}
-	return false;
-}
+
+/**
+ * TODO - fill in what it does!
+ * @param {[type]} inputVal [description]
+ */
 function setInputForSQLretrieval(inputVal){
-	var temp = inputVal.replace(/\ /g,"");
+	var temp = inputVal.replace(/\ /g, "");
 	temp = temp.toUpperCase();
 	return temp.split(",");
 }
+
+/**
+ * Creates the URL to Yahoo's API from the user's input
+ * @param  {Array} stockArry - the stocks to look for
+ * @return {String} yahooURL - the URL to the Yahoo's API
+ * @function
+ */
 function createURL(stockArry){
 	var yahooURL = "https://query.yahooapis.com/v1/public/yql?q=select%20symbol%2CName%2CPreviousClose\
 	%2CYearLow%2CYearHigh%2CChangeFromYearLow%2CChangeFromYearHigh%20from%20yahoo.finance\
 	.quotes%20where%20symbol%20in%20(%22";
-	for (var i = 0; i < stockArry.length-1 ; i++) {
-		yahooURL += stockArry[i] + "%22%2C%22";
+
+	for (var stockIndex = 0; stockIndex < stockArry.length - 1 ; stockIndex++) {
+		yahooURL += stockArry[stockIndex] + "%22%2C%22";
 	}
+
 	yahooURL += stockArry.pop();
 	yahooURL += "%22)%0A%09%09&format=json&diagnostics=true&env=http%3A%2F%2Fdatatables.org%2Falltables.\
 	env&callback=";
 	return yahooURL;
 }
-function addToTable(){
-	$("#msgDisplayer").hide();
-	if (document.getElementById("stockTable")){
-		var tempObj = {};
-		var tempStr = "";
-		var tableRows = document.getElementById("stockTable").rows;
-		for (var z = 1; z < tableRows.length; z++) {
-			tempObj[tableRows[z].cells[0].innerText] = true;
+
+/**
+ * Returns the table's headers
+ * @function
+ */
+function createTableHeaders(){
+	return "<table id='stockTable' class='table table-striped'><tr><th>Symbol</th><th>Name</th><th>Previous close</th>\
+	<th>Year low</th><th>Year high</th><th>Change from year low</th><th>Change from year high</th></tr>";
+}
+
+/**
+ * Creates a chart out of the given stocks
+ * @param  {Array} stockData - the array of stocks
+ * @return {Highcharts.Chart} - the new chart to display
+ * @function
+ */
+function createChart(stockData){
+	var MAX_ALLOWED_STOCKS = 6;
+	var fromLowP;
+	var fromHighP;
+	var columnChart = {};
+	columnChart.chart = {
+		renderTo:'GraphContent',
+		type:'column'
+	};
+	columnChart.title = {
+		text: "Difference in Percentage of YearLow and YearHigh"
+	};
+	columnChart.xAxis = {
+		categories: [
+			'YearHighDiff',
+			'YearLowDiff'
+		]
+	};
+	columnChart.yAxis = {
+		title: {
+			text: "Percentage (%)"
 		}
-		var searchInputData = setInputForSQLretrieval($("#searchInput").val());
-		for (var i = 0; i < searchInputData.length; i++) {
-			if (!tempObj[searchInputData[i]]) {
-				tempStr += searchInputData[i] + ",";
+	};
+	columnChart.series = [];
+
+	var chartCounter = 0;
+
+	// Goes over all the stocks to create data for the graph
+	for (var stockIndex = 0; stockIndex < stockData.length; stockIndex++) {
+		var currentStock = stockData[stockIndex];
+
+		// In some cases (like Apple for example) we do not have all the data to show in the graph
+		if (currentStock.YearLow != null){
+			columnChart.series[chartCounter] = {};
+			columnChart.series[chartCounter].name = currentStock.Name;
+			fromLowP = (currentStock.ChangeFromYearLow) * 100 / currentStock.YearLow;
+			fromHighP = (currentStock.ChangeFromYearHigh) * 100 / currentStock.YearHigh;
+			columnChart.series[chartCounter].data = [fromHighP, fromLowP];
+			chartCounter++;
+
+			// We only allowed some ammout of stocks to be shown in the graph
+			if (columnChart.series.length === MAX_ALLOWED_STOCKS){
+				break;
 			}
 		}
-		$("#searchInput").val(tempStr.slice(0,tempStr.length-1));
-		search(true);
+	}
+
+	return new Highcharts.Chart(columnChart);
+}
+
+function createTableData(stockData) {
+	var tableStr = "";
+	var notfoundStr = "<br><div>No stock was found in the given symbol (";
+	var notfoundArr = [];
+
+	// Goes over all the stocks and adds them into the table
+	for (var stockIndex = 0; stockIndex < stockData.length; stockIndex++) {
+		var currentStock = stockData[stockIndex];
+
+		// Checks if a given stock name wasn't found in order to display it to the user
+		if (!currentStock.Name) {
+			notfoundArr.push(currentStock.symbol);
+		} else {
+			var NO_DATA_TEXT = "No Data";
+			var previousCloseText = currentStock.PreviousClose ? currentStock.PreviousClose + "$" : NO_DATA_TEXT;
+			var yearLowText = currentStock.YearLow ? currentStock.YearLow + "$" : NO_DATA_TEXT;
+			var yearHighText = currentStock.YearHigh ? currentStock.YearHigh + "$" : NO_DATA_TEXT;
+			var changeFromYearLowText = currentStock.ChangeFromYearLow ? currentStock.ChangeFromYearLow + "$" : NO_DATA_TEXT;
+			var changeFromYearHighText = currentStock.ChangeFromYearHigh ? currentStock.ChangeFromYearHigh + "$" : NO_DATA_TEXT;
+
+			tableStr += "<tr><td>" + currentStock.symbol + "</td><td>" + currentStock.Name + "</td>\
+			<td>" + previousCloseText + "</td><td>" + yearLowText + "</td><td>\
+			" + yearHighText + "</td><td";
+
+			if (currentStock.ChangeFromYearLow > 0) {
+				tableStr += " style='color:green'";
+			} else if (stockData.ChangeFromYearLow < 0) {
+				tableStr += " style='color:red'";
+			}
+
+			tableStr += ">" + changeFromYearLowText + "</td><td";
+			if (currentStock.ChangeFromYearHigh > 0) {
+				tableStr += " style='color:green'";
+			} else if (currentStock.ChangeFromYearHigh < 0) {
+				tableStr += " style='color:red'";
+			}
+
+			tableStr += ">" + changeFromYearHighText + "</td></tr>";
+		}
+	}
+
+	// Checks if we didn't find some stocks, and adds it to the div containing that information to the user
+	if (notfoundArr.length > 0) {
+		for (var notFoundIndex = 0; notFoundIndex < notfoundArr.length - 1 ; notFoundIndex++){
+			notfoundStr += notfoundArr[notFoundIndex] + ", ";
+		}
+
+		notfoundStr += notfoundArr[notfoundArr.length - 1] + ")</div>";
 	} else {
-		$("#msgDisplayer").html("There isnt a table to add to");
-		$("#msgDisplayer").css('display', 'inline-block');
+		notfoundStr = "";
+	}
+
+	return {
+		notfoundStr: notfoundStr,
+		tableStr: tableStr
+	};
+}
+
+/**
+ * Add the given rows to the table
+ * @param {Array} stockData - the array of Yahoo's stocks objects
+ * @param {[type]} tableStr - the table html string to add the data to
+ * @function
+ */
+function addTableRows(stockData, tableStr){
+	var data = createTableData(stockData);
+
+	tableStr += data.tableStr;
+	tableStr += "</table>";
+	tableStr += data.notfoundStr;
+
+	$("#tableContent").html(tableStr);
+}
+
+/**
+ * Appends the new stocks to the table instead of replacing it
+ * @param  {Array} stockData - the fetched stocks
+ * @function
+ */
+function appendRows(stockData){
+	var tableStr = "";
+	var data = createTableData(stockData);
+
+	tableStr += data.tableStr;
+
+	$("#stockTable").append(tableStr);
+	$("#tableContent").append(data.notfoundStr);
+}
+
+/**
+ * Incharge of getting the stocks info from Yahoo
+ * @param  {boolean} addRows - if we should append the results to the table or replace all its content
+ * @function
+ */
+function search(addRows){
+	hideMsg();
+	var userInput = $("#searchInput").val();
+
+	// FIXME - Fix - if there is no text, the search button should be disabled
+	// If there is no text - do not search. We do it even that we've set the search button to disabled when
+	// there is no text - in order to be 100% bullet proff for future changes in the HTML
+	if (userInput) {
+		var searchInputData = [];
+		searchInputData = setInputForSQLretrieval(userInput);
+		var yahooURL = createURL(searchInputData);
+		var english = /^[A-Za-z0-9\,\ ]*$/;
+
+		// Checks if the text is not in English
+		// FIXME: It also excepts # and so on..
+		if(!english.test(searchInputData)){
+			showErrorMessage("This input accepts only English, spaces and commas");
+		} else{
+			$("#searchDiv h5").css('display', 'inline-block');
+			$.ajax({
+				url: yahooURL,
+				dataType: "json",
+				success: function(ajaxResult){
+					$("#searchDiv h5").hide();
+					$("#searchInput").val("");
+					var stockResult;
+
+					if (ajaxResult.query.results) {
+						stockResult = ajaxResult.query.results.quote;
+					}
+
+					// In case there aren't any results - stop the operation
+					if (!stockResult) {
+						showErrorMessage("No results were found. Might be an error with the servers..");
+						return;
+					}
+
+					// The Yahoo API when returning 1 result, returns it as an object and not Array,
+					// in order to write a more generic code we take that object and turns it into an
+					// array with itself as the first object
+					if (!(stockResult instanceof Array)) {
+						stockResult = [stockResult];
+					}
+
+					if (!addRows) {
+						var table = createTableHeaders();
+						addTableRows(stockResult, table);
+					}
+					else{
+						appendRows(stockResult);
+					}
+
+					// FIXME - when addToTable it changes the graph to only show the lateset stock
+					createChart(stockResult);
+				},
+				error: function(request, status, error){
+					$("#searchDiv h5").hide();
+					var defaultError = "<strong>Error -</strong>Some thing went wrong..";
+					var message;
+					if (error) {
+						message = error.message || defaultError;
+					} else {
+						message = defaultError;
+					}
+
+					showErrorMessage(message);
+				}
+			});
+		}
 	}
 }
-function appendRows(stockData,queryCount){
-		var tableStr = "";
-		if (queryCount === 1) {
-		tableStr += "<tr><td>"+stockData.symbol+"</td><td>"+stockData.Name+"</td>\
-		<td>"+stockData.PreviousClose+"$</td><td>"+stockData.YearLow+"$</td><td>\
-		"+stockData.YearHigh+"$</td><td";
-		if (stockData.ChangeFromYearLow > 0) {
-			tableStr += " style='color:green'";
+
+/**
+ * The function adds a new stock to the list of existing stocks instead of clearing everything
+ * lie the search option does
+ * @function
+ */
+function addToTable(){
+	hideMsg();
+
+	// Checks if a table already exists or not
+	if (document.getElementById("stockTable")){
+		var existingStocks = {};
+		var tempStr = "";
+		var tableRows = document.getElementById("stockTable").rows;
+
+		// Creating a hash of all the existing stocks to search for copies in the user's search
+		// so we won't search twce the same stock
+		for (var existingStockIndex = 1; existingStockIndex < tableRows.length; existingStockIndex++) {
+			existingStocks[tableRows[existingStockIndex].cells[0].innerText] = true;
 		}
-		else if(stockData.ChangeFromYearLow < 0){
-			tableStr += " style='color:red'";
+
+		var searchInputData = setInputForSQLretrieval($("#searchInput").val());
+		for (var searchStocks = 0; searchStocks < searchInputData.length; searchStocks++) {
+			if (!existingStocks[searchInputData[searchStocks]]) {
+				tempStr += searchInputData[searchStocks] + ",";
+			}
 		}
-		tableStr += ">"+stockData.ChangeFromYearLow+"$</td><td";
-		if (stockData.ChangeFromYearHigh > 0) {
-			tableStr += " style='color:green'";
-		}
-		else if(stockData.ChangeFromYearHigh < 0){
-			tableStr += " style='color:red'";
-		}
-		tableStr += ">"+stockData.ChangeFromYearHigh+"$</td></tr></table>";
-	}//if
-	else{
-		var notfoundStr = "<br><div>No stock was found in the given symbol (";
-		var notfoundArr = [];
-		for (var i = 0; i < queryCount; i++) {
-			if (stockData[i].Name == null) {
-				notfoundArr.push(stockData[i].symbol);
-			}//if
-			else{
-				tableStr += "<tr><td>"+stockData[i].symbol+"</td><td>"+stockData[i].Name+"</td>\
-				<td>"+stockData[i].PreviousClose+"$</td><td>"+stockData[i].YearLow+"$</td><td>\
-				"+stockData[i].YearHigh+"$</td><td";
-				if (stockData[i].ChangeFromYearLow > 0) {
-					tableStr += " style='color:green'";
-				}//if
-				else if(stockData.ChangeFromYearLow < 0){
-					tableStr += " style='color:red'";
-				}//elseif
-				tableStr += ">"+stockData[i].ChangeFromYearLow+"$</td><td";
-				if (stockData[i].ChangeFromYearHigh > 0) {
-					tableStr += " style='color:green'";
-				}//if
-				else if(stockData[i].ChangeFromYearHigh < 0){
-					tableStr += " style='color:red'";
-				}//elseif
-				tableStr += ">"+stockData[i].ChangeFromYearHigh+"$</td></tr>";
-			}//else
-		}//for
-		// if (notfoundArr.length > 0) {
-		// 	for (var i = 0;i < notfoundArr.length-1 ; i++){
-		// 		notfoundStr += notfoundArr[x] + ",";
-		// 	}
-		// 	notfoundStr += notfoundArr[notfoundArr.length-1] + ")</div>";
-		// 	tableStr += notfoundStr;
-		// }
-		$("#stockTable").append(tableStr);
-	}//else
+
+		// Sets the input search box with the stoks to look for
+		// (We look also for the existing stocks in order to refresh them)
+		$("#searchInput").val(tempStr.slice(0, tempStr.length - 1));
+		search(true);
+	} else {
+		search(false);
+
+		// TODO - should I want just to perform a regular search instead of showing an error???
+		// showErrorMessage("There isn't a table to add to");
+	}
 }
