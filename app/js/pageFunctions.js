@@ -128,6 +128,13 @@ function createChart(stockData){
 	return new Highcharts.Chart(columnChart);
 }
 
+/**
+ * Creates the table's data and not found stocks data
+ * @param  {Array} stockData - the array of stocks
+ * @return {Object} object.notfoundStr - the string for the not found stocks section
+ * @return {Object} object.tableStr - the string of the table data
+ * @function
+ */
 function createTableData(stockData) {
 	var tableStr = "";
 	var notfoundStr = "<br><div>No stock was found in the given symbol (";
