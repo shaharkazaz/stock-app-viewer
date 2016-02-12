@@ -1,5 +1,5 @@
 # Datorama Stocks App Viewer
-<what is here>?
+Web viewer for watching stocks info.
 
 ## Installation
 First lets install some stuff.
@@ -13,12 +13,12 @@ cd <project directory>
 
 Now, please install globally the package ```http-server```:
 ```shell
-sudo npm install -g http-server@0.8.5
+npm install -g http-server@0.8.5
 ```
 
 And also bower (being used to download jQuery):
 ```shell
-sudo npm install -g bower@1.7.7
+npm install -g bower@1.7.7
 ```
 
 After that, please install all of the npm dependencies:

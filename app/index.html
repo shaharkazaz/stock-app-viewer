@@ -23,19 +23,28 @@
   <body>
     <left>
 			<h1>Stock App Viewer</h1>
-			<form id="searchForm" class="form-inline" style="margin-left: 40px;">
+			<form id="searchForm" class="form-inline">
 				<h3 class="form-control-static">Stocks</h3>
 				<div class="form-group">
 				   <div class="input-group">
-				      <input id="searchInput" type="text" class="form-control" placeholder="Search by stock symbol..." autofocus="autofocus" style="width: 280px;">
+				      <input id="searchInput" type="text" class="form-control" placeholder="Search by stock symbol..." autofocus="autofocus" />
 				      <span class="input-group-btn">
-				        <button class="btn btn-default" type="button" onclick="search()" data-toggle="tooltip" title="Search"><img src="Images/search.png" style="height: 18px"></button>
-				        <button class="btn btn-default" type="button" onclick="clearSearch()" data-toggle="tooltip" title="Clear the search">Clear search</button>
-				        <button class="btn btn-default" type="button" onclick="" data-toggle="tooltip" title="Add a new search to the old one">Add to table</button>
+				        <button class="btn btn-default" type="button" onclick="search()" data-toggle="tooltip" title="Search">
+                  <img class="search-images" src="Images/search.png">
+                </button>
+			          <button class="btn btn-default" type="button" onclick="clearSearch()" data-toggle="tooltip" title="Clear the search">
+                  Clear search
+                </button>
+			          <button class="btn btn-default" type="button" onclick="" data-toggle="tooltip" title="Add a new search to the old one">
+                  Add to table
+                </button>
 				      </span>
-				    </div><!-- /input-group -->
+				    </div>
 				</div>
-				<h5 class="form-control-static" style="display: none;">Searching<img src="Images/loading.gif" style="height: 18px"></h3>
+				<h5 id="loader" class="form-control-static">
+          Searching
+          <img src="Images/loading.gif">
+        </h5>
 			</form>
 		</left>
 		<br>

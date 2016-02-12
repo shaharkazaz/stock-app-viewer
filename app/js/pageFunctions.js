@@ -5,7 +5,7 @@ $(document).ready(function(){
 		e.preventDefault();
 		search();
 	});
-	$('[data-toggle="tooltip"]').tooltip(); 
+	$('[data-toggle="tooltip"]').tooltip();
 });
 //clears all the data that was searched
 function clearSearch(){
@@ -22,7 +22,7 @@ function search(){
 		alert("This input accepts only English,spaces and commas");
 	}
 	else{
-		$("#searchForm h5").show();
+		$("#searchForm h5").css('display', 'inline-block');
 		$.ajax({
 			url: yahooURL,
 			dataType: "json",
@@ -41,7 +41,7 @@ function search(){
 						var table = tableHeaders();
 						addTableRows(stockResult,table,queryCount);
 						createChart(stockResult,queryCount);
-					}//else 
+					}//else
 				}//if ajaxResult.query.count == 1
 				else{
 					if (checkNotallNull(stockResult,queryCount)) {
@@ -63,7 +63,7 @@ function search(){
 }
 function tableHeaders(){
 	return "<table class='table table-striped'><tr><th>Symbol</th><th>Name</th><th>Previous close</th>\
-	<th>Year low</th><th>Year high</th><th>Change from year low</th><th>Change from year high</th></tr>";			
+	<th>Year low</th><th>Year high</th><th>Change from year low</th><th>Change from year high</th></tr>";
 }
 function addTableRows(stockData,tableStr,queryCount){
 	if (queryCount === 1) {
@@ -83,12 +83,12 @@ function addTableRows(stockData,tableStr,queryCount){
 		else if(stockData.ChangeFromYearHigh < 0){
 			tableStr += " style='color:red'";
 		}
-		tableStr += ">"+stockData.ChangeFromYearHigh+"$</td></tr></table>";	
+		tableStr += ">"+stockData.ChangeFromYearHigh+"$</td></tr></table>";
 	}//if
 	else{
 		var notfoundStr = "<br><div>No stock was found in the given symbol (";
 		var notfoundArr = [];
-		for (var i = 0; i < queryCount; i++) {	
+		for (var i = 0; i < queryCount; i++) {
 			if (stockData[i].Name == null) {
 				notfoundArr.push(stockData[i].symbol);
 			}//if
@@ -109,7 +109,7 @@ function addTableRows(stockData,tableStr,queryCount){
 				else if(stockData[i].ChangeFromYearHigh < 0){
 					tableStr += " style='color:red'";
 				}//elseif
-				tableStr += ">"+stockData[i].ChangeFromYearHigh+"$</td></tr>";	
+				tableStr += ">"+stockData[i].ChangeFromYearHigh+"$</td></tr>";
 			}//else
 		}//for
 		tableStr += "</table>";
@@ -134,12 +134,12 @@ function createChart(stockData,queryCount){
 		if (stockData.YearLow == null){
 			$("#GraphContent").html("No Values To display");
 		}
-		else{		
+		else{
 			columnChart.series[0] = {};
 			columnChart.series[0].name = stockData.Name;
 			fromLowP = (stockData.ChangeFromYearLow)*100/stockData.YearLow;
 			fromHighP = (stockData.ChangeFromYearHigh)*100/stockData.YearHigh;
-			columnChart.series[0].data = [fromHighP,fromLowP];	
+			columnChart.series[0].data = [fromHighP,fromLowP];
 		}
 	}
 	else
@@ -155,9 +155,9 @@ function createChart(stockData,queryCount){
 					chartCounter++;
 					if (columnChart.series.length == 6 ){
 						break;
-					}	
+					}
 				}//if
-			}//for	
+			}//for
 	}//else
 	return chart1 = new Highcharts.Chart(columnChart);
 }
