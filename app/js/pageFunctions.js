@@ -235,12 +235,16 @@ function createTableData(stockData) {
  */
 function addTableRows(stockData, tableStr){
 	var data = createTableData(stockData);
-
-	tableStr += data.tableStr;
-	tableStr += "</table>";
-	tableStr += data.notfoundStr;
-
-	$("#tableContent").html(tableStr);
+	if (data.tableStr) {
+		tableStr += data.tableStr;
+		tableStr += "</table>";
+		$("#tableContent").html(tableStr);
+		$("#searchMsg").html(data.notfoundStr);
+	}
+	else{
+		$("#tableContent").html(data.notfoundStr);	
+		$("#GraphContent").html("No Data to display");
+	}
 }
 
 /**
