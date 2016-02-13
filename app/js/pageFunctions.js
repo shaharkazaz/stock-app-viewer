@@ -9,7 +9,7 @@
  */
  $(document).ready(function(){
  	$("#searchInput").keypress(function(keyStroke){
- 		if (keyStroke.which == 13) {
+ 		if (keyStroke.which === 13) {
  			search(false);
  		}
  	});
