@@ -58,4 +58,5 @@ The website has been tested on:
 * IE11*
 
 \* No version of IE below IE11 has been tested since non of them has a lot of usage + [Microsoft has deprecated these versions](https://www.fireeye.com/blog/threat-research/2016/01/end_of_life_for_ie.html).
+
 \*\* No later version of Safari was tested since this is the latest release for Windows PC computers + [Apple apparently kills Windows PC support in Safari 6.0](http://appleinsider.com/articles/12/07/25/apple_kills_windows_pc_support_in_safari_60)
