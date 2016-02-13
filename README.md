@@ -1,6 +1,10 @@
 # Datorama Stocks App Viewer
 Web viewer for watching stocks info.
 
+This app is as requested in the "Frontend Developer-House Test" with 2 extra features:
+
+1. Clear table function
+* Add to table function
 ## Installation
 First lets install some stuff.
 If you don't have Node.js and npm installed, please [download](https://nodejs.org/en/download/) and install them. <br>
@@ -46,6 +50,7 @@ Have fun!
 
 ## Tests
 The website has been tested on:
+
 1. Chrome
 * Firefox
 * Safari

@@ -1,5 +1,5 @@
 /**
-@fileoverview The js function for the stocks viewer
+@fileoverview The js functions for the stocks viewer
  */
 
 /**
@@ -17,10 +17,11 @@ function hideMsg() {
 
 /**
  * Clears all the data that was searched
- * @return
+ * 
  */
 function clearSearch(){
 	hideMsg();
+	$("#searchMsg").html("");
 	$("#tableContent").html("Enter a new search");
 	$("#GraphContent").html("Enter a new search");
 }
@@ -91,7 +92,7 @@ function createChart(stockData, appendStocks){
 	var columnChart;
 
 	// Only set the columnChart if we are creating a new chart
-	if (!appendStocks) {
+	if (!appendStocks || (appendStocks && !chart)) {
 		columnChart = {};
 		columnChart.chart = {
 			renderTo:'GraphContent',
@@ -130,7 +131,7 @@ function createChart(stockData, appendStocks){
 		for (var stockIndex = 0; stockIndex < stockData.length; stockIndex++) {
 			var currentStock = stockData[stockIndex];
 
-			// In some cases (like Apple for example) we do not have all the data to show in the graph
+			// In some cases (like APPELL PETE CORP for example) we do not have all the data to show in the graph
 			if (currentStock.YearLow != null){
 				series[chartCounter] = {};
 				series[chartCounter].name = currentStock.Name;
@@ -146,15 +147,18 @@ function createChart(stockData, appendStocks){
 			}
 		}
 
-		if (appendStocks) {
+		if (appendStocks && chart) {
 			$.each(series, function (itemNo, item) {
         chart.addSeries(item, false);
   		});
       chart.redraw();
-		} else {
+		} else if (series.length > 0){
 			columnChart.series = series;
 			chart = new Highcharts.Chart(columnChart);
 		}
+		  else{
+		  	$("#GraphContent").html("No Data to display");
+		  }
 	}
 }
 
@@ -251,7 +255,7 @@ function appendRows(stockData){
 	tableStr += data.tableStr;
 
 	$("#stockTable").append(tableStr);
-	$("#tableContent").append(data.notfoundStr);
+	$("#searchMsg").html(data.notfoundStr);	
 }
 
 /**
