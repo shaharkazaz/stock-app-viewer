@@ -5,6 +5,7 @@ This app is as requested in the "Frontend Developer-House Test" with 2 extra fea
 
 1. Clear table function
 * Add to table function
+
 ## Installation
 First lets install some stuff.
 If you don't have Node.js and npm installed, please [download](https://nodejs.org/en/download/) and install them. <br>
