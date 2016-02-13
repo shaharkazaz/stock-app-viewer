@@ -3,6 +3,19 @@
  */
 
 /**
+ * Adding a listener to the input filed so when "Enter" is pressed
+ * search() is called
+ * @function
+ */
+ $(document).ready(function(){
+ 	$("#searchInput").keypress(function(keyStroke){
+ 		if (keyStroke.which == 13) {
+ 			search(false);
+ 		}
+ 	});
+ });
+
+/**
  * @type {Highcharts.Chart} The chart we renders the data to
  */
 var chart;
